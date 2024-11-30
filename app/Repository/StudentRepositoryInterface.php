@@ -10,7 +10,8 @@ interface StudentRepositoryInterface{
 
       // Edit_Student
       public function Edit_Student($id);
-
+// Show_Student
+public function Show_Student($id);
       //Update_Student
       public function Update_Student($request);
 
@@ -28,6 +29,7 @@ interface StudentRepositoryInterface{
 
       //Store_Student
       public function Store_Student($request);
+
 }
 
 

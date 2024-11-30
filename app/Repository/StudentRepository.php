@@ -10,6 +10,8 @@ use App\Models\Section;
 use App\Models\Student;
 use App\Models\Type_Blood;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use App\Models\Image;
 
 
 class StudentRepository implements StudentRepositoryInterface{
@@ -68,6 +70,11 @@ class StudentRepository implements StudentRepositoryInterface{
 
     }
 
+public function Show_Student($id){
+    $Student = Student::findorfail($id);
+        return view('pages.Students.show',compact('Student'));
+}
+
     public function Get_classrooms($id){
 
         $list_classes = Classroom::where("Grade_id", $id)->pluck("Name_Class", "id");
@@ -83,6 +90,7 @@ class StudentRepository implements StudentRepositoryInterface{
     }
 
     public function Store_Student($request){
+        DB::beginTransaction();
 
         try {
             $students = new Student();
@@ -99,11 +107,34 @@ class StudentRepository implements StudentRepositoryInterface{
             $students->parent_id = $request->parent_id;
             $students->academic_year = $request->academic_year;
             $students->save();
+
+            if($request->hasfile('photos'))
+            {
+                foreach($request->file('photos') as $file)
+                {
+                    $name = $file->getClientOriginalName();
+                    $file->storeAs('attachments/students/'.$students->name, $file->getClientOriginalName(),'upload_attachments');
+
+                    // insert in image_table
+                    $images= new Image();
+                    $images->filename=$name;
+                    $images->imageable_id= $students->id;
+                    $images->imageable_type = 'App\Models\Student';
+                    $images->save();
+                }
+            }
+            DB::commit(); // insert data
+
+
+
+
             toastr()->success(trans('messages.success'));
             return redirect()->route('Students.create');
         }
 
         catch (\Exception $e){
+            DB::rollback();
+
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
 
