@@ -30,12 +30,16 @@ class StudentController extends Controller
         return $this->Student->Create_Student();
     }
 
+
     public function store(StoreStudentsRequest $request)
     {
        return $this->Student->Store_Student($request);
     }
 
+public function show($id){
 
+    return $this->Student->Show_Student($id);
+}
 
     public function edit($id)
     {
@@ -56,7 +60,7 @@ class StudentController extends Controller
         return $this->Student->Delete_Student($request);
     }
 
-    
+
     public function Get_classrooms($id)
     {
        return $this->Student->Get_classrooms($id);
